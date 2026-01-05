@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* Custom Styles from Reference */
+@layer components {
+    .logo-box {
+        width: 40px;
+        height: 40px;
+        background-color: #ED1D24;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Oswald', sans-serif;
+        font-weight: 700;
+        line-height: 1;
+        font-size: 1.2rem;
+        letter-spacing: -1px;
+    }
+
+    .nav-link {
+        position: relative;
+    }
+
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 50%;
+        background-color: currentColor;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .nav-link:hover::after {
+        width: 100%;
+    }
+
+    /* Expanding Pill Button Effect */
+    .btn-expand-pill {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-expand-pill::before {
+        content: "";
+        display: block;
+        width: 0px;
+        height: 100%;
+        background-color: white;
+        position: absolute;
+        border-radius: 0;
+        left: 0;
+        top: 0;
+        z-index: 0;
+        transition: all 400ms ease;
+    }
+
+    .btn-expand-pill > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-expand-pill:hover::before {
+        width: 100%;
+    }
+
+    .btn-expand-pill .arrow-icon {
+        transition: transform 400ms ease;
+    }
+
+    .btn-expand-pill:hover .arrow-icon {
+        transform: translateX(5px);
+    }
+
+    .btn-expand-pill:active {
+        transform: translateY(2px);
+    }
+
+    /* Diagonal Fill Effect from Left */
+    .btn-scale-fill {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-scale-fill::before {
+        content: "";
+        position: absolute;
+        width: 120%;
+        height: 100%;
+        display: block;
+        background: #1a1a1a;
+        top: 0;
+        left: -10%;
+        z-index: 0;
+        transform: scaleX(0) skewX(-20deg);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .btn-scale-fill > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .btn-scale-fill:hover::before {
+        transform: scaleX(1) skewX(-20deg);
+    }
+
+    .btn-scale-fill:active {
+        transform: translateY(2px);
+    }
+}
