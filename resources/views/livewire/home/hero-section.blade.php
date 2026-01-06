@@ -71,6 +71,18 @@
                 }
             }
         },
+        shouldShowDot(index) {
+            // Logic for progressive dots: show 5 dots total (current +/- 2)
+            // Handle wrap-around logic for the 'infinite' feel
+            let realCurrent = this.currentIndex === this.products.length ? 0 : this.currentIndex;
+            let diff = index - realCurrent;
+            
+            // Adjust diff for wrap-around (shortest path)
+            if (diff > this.products.length / 2) diff -= this.products.length;
+            if (diff < -this.products.length / 2) diff += this.products.length;
+            
+            return Math.abs(diff) <= 2;
+        },
         goToDetail(slug) {
             if (slug && slug !== '#') {
                 window.location.href = '/product/' + slug;
@@ -178,13 +190,20 @@
 
     <!-- Navigation Dots - Right Side -->
     <div class="fixed right-6 lg:right-12 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-3">
-        @foreach($products as $index => $product)
+        <template x-for="(product, index) in products" :key="index">
             <button class="w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer"
-                    :class="(currentIndex === {{ $index }} || (currentIndex === products.length && {{ $index }} === 0))
+                    x-show="shouldShowDot(index)"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-50"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-300"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-50"
+                    :class="(currentIndex === index || (currentIndex === products.length && index === 0))
                         ? 'bg-white scale-150' 
                         : 'bg-white/40 hover:bg-white/70'"
-                    @click="goToProduct({{ $index }})"></button>
-        @endforeach
+                    @click="goToProduct(index)"></button>
+        </template>
     </div>
 
     <!-- Scroll Indicator - Only show on first product (real or clone reset) -->
@@ -197,10 +216,10 @@
         </div>
     </div>
 
-    <!-- Product Counter -->
+    <!-- Product Counter
     <div class="fixed bottom-8 right-6 lg:right-12 z-40 text-white/60 font-display text-sm">
         <span class="text-white font-bold text-lg" x-text="(currentIndex === products.length ? 1 : currentIndex + 1)"></span>
         <span class="mx-1">/</span>
         <span x-text="products.length"></span>
-    </div>
+    </div> -->
 </div>

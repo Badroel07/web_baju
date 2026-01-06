@@ -24,20 +24,17 @@
                 <button class="text-white hover:text-gray-300 transition-colors drop-shadow-md">
                     <span class="material-icons-outlined text-2xl">search</span>
                 </button>
-                <button class="text-white hover:text-gray-300 transition-colors hidden sm:block drop-shadow-md">
-                    <span class="material-icons-outlined text-2xl">favorite_border</span>
-                </button>
-                <button class="text-white hover:text-gray-300 transition-colors hidden sm:block drop-shadow-md">
-                    <span class="material-icons-outlined text-2xl">person_outline</span>
-                </button>
                 <a href="{{ route('cart') }}" class="text-white hover:text-gray-300 transition-colors relative drop-shadow-md" wire:navigate>
                     <span class="material-icons-outlined text-2xl">shopping_cart</span>
                     @if($cartCount > 0)
-                        <span class="absolute -top-2 -right-2 bg-white text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                            {{ $cartCount }}
-                        </span>
+                    <span class="absolute -top-2 -right-2 bg-white text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                        {{ $cartCount }}
+                    </span>
                     @endif
                 </a>
+                <button class="text-white hover:text-gray-300 transition-colors hidden sm:block drop-shadow-md">
+                    <span class="material-icons-outlined text-2xl">person_outline</span>
+                </button>
                 <button class="md:hidden text-white hover:text-gray-300 transition-colors drop-shadow-md">
                     <span class="material-icons-outlined text-2xl">menu</span>
                 </button>
