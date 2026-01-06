@@ -17,6 +17,7 @@ class ProductsTable
         return $table
             ->columns([
                 ImageColumn::make('images')
+                    ->disk('public')
                     ->circular()
                     ->stacked()
                     ->limit(3),

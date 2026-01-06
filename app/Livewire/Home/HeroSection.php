@@ -13,7 +13,7 @@ class HeroSection extends Component
     {
         $products = Product::active()->latest()->take(3)->get()->map(function($product) {
             $images = $product->images ?? [];
-            $image = !empty($images) ? Storage::url($images[0]) : 'https://via.placeholder.com/1920x1080?text=No+Image';
+            $image = !empty($images) ? Storage::disk('public')->url($images[0]) : 'https://via.placeholder.com/1920x1080?text=No+Image';
             
             return [
                 'id' => $product->id,
@@ -21,8 +21,8 @@ class HeroSection extends Component
                 'badge' => 'New Arrival',
                 'title' => $product->name,
                 'description' => Str::limit(strip_tags($product->description), 150),
-                'price' => '$' . number_format($product->price, 2),
-                'oldPrice' => $product->sale_price ? '$' . number_format($product->sale_price, 2) : null,
+                'price' => 'Rp' . number_format($product->price, 0, ',', '.'),
+                'oldPrice' => $product->sale_price ? 'Rp' . number_format($product->sale_price, 0, ',', '.') : null,
                 'slug' => $product->slug,
             ];
         });

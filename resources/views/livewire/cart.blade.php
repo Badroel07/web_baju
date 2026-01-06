@@ -12,7 +12,7 @@
                         <div class="flex-grow">
                             <h3 class="text-white font-bold">{{ $item['name'] }}</h3>
                             <p class="text-sm text-gray-400">Size: {{ $item['size'] }}</p>
-                            <p class="text-primary font-bold">${{ number_format($item['price'], 2) }}</p>
+                            <p class="text-primary font-bold">Rp{{ number_format($item['price'], 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <button wire:click="updateQuantity('{{ $key }}', {{ $item['quantity'] - 1 }})" class="w-6 h-6 flex items-center justify-center bg-gray-600 text-white rounded-full hover:bg-gray-500">-</button>
@@ -30,11 +30,11 @@
                 <h3 class="text-xl font-bold text-white mb-4">Summary</h3>
                 <div class="flex justify-between text-gray-400 mb-2">
                     <span>Subtotal</span>
-                    <span>${{ number_format($total, 2) }}</span>
+                    <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between text-white font-bold text-lg mb-6 border-t border-gray-700 pt-4">
                     <span>Total</span>
-                    <span>${{ number_format($total, 2) }}</span>
+                    <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
                 </div>
                 <a href="{{ route('checkout') }}" class="block w-full bg-primary text-white text-center py-3 font-bold uppercase tracking-wider hover:bg-red-600 transition-colors">
                     Checkout

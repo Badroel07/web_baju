@@ -34,7 +34,7 @@
                             <span class="block font-bold">{{ $item['name'] }}</span>
                             <span class="text-xs text-gray-500">Size: {{ $item['size'] }} x {{ $item['quantity'] }}</span>
                         </div>
-                        <span>${{ number_format($item['price'] * $item['quantity'], 2) }}</span>
+                        <span>Rp{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
                     </div>
                 @endforeach
             </div>
@@ -42,7 +42,7 @@
             <div class="border-t border-gray-700 pt-4 mb-8">
                 <div class="flex justify-between text-white font-bold text-xl">
                     <span>Total</span>
-                    <span>${{ number_format($total, 2) }}</span>
+                    <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
                 </div>
             </div>
 

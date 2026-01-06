@@ -1,103 +1,206 @@
-<div>
-    <script>
-        window.heroProducts = @json($products);
-    </script>
-    <section class="relative h-screen w-full overflow-hidden flex items-center"
-        x-data="{
-            currentSlide: 0,
-            products: window.heroProducts || [],
-            init() {
-                if (this.products.length > 0) {
-                    setInterval(() => {
-                        this.currentSlide = (this.currentSlide + 1) % this.products.length;
-                    }, 8000);
+<div class="h-screen w-full overflow-hidden" 
+     x-data="{
+        currentIndex: 0,
+        products: window.heroProducts || [],
+        isAnimating: false,
+        touchStartY: 0,
+        useTransition: true,
+        init() {
+            window.heroProducts = @js($products);
+            this.products = window.heroProducts;
+            
+
+        },
+        goToProduct(index) {
+            // Allow index to go to products.length (the clone)
+            if (this.isAnimating || index < 0 || index > this.products.length) return;
+            
+            this.isAnimating = true;
+            this.currentIndex = index;
+            
+            // If we moved to the clone (visual match of index 0)
+            if (index === this.products.length) {
+                setTimeout(() => {
+                    this.useTransition = false; // Disable transition for instant jump
+                    this.currentIndex = 0;      // Jump to real first item
+                    
+                    // Re-enable transition after small delay
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            this.useTransition = true;
+                            this.isAnimating = false;
+                        });
+                    });
+                }, 700); // Wait for slide animation to finish
+            } else {
+                setTimeout(() => this.isAnimating = false, 700);
+            }
+        },
+        nextProduct() {
+            this.goToProduct(this.currentIndex + 1);
+        },
+        prevProduct() {
+            if (this.currentIndex > 0) {
+                this.goToProduct(this.currentIndex - 1);
+            }
+        },
+        handleWheel(e) {
+            // e.preventDefault(); // Optional: remove if blocking normal page scroll is annoying
+            // Check if scrolling down
+            if (e.deltaY > 0) {
+                if (!this.isAnimating) {
+                    this.nextProduct();
                 }
-            },
-            goToDetail() {
-                let slug = this.products[this.currentSlide]?.slug;
-                if (slug && slug !== '#') {
-                    window.location.href = '/product/' + slug;
+            } else {
+                if (!this.isAnimating) {
+                    this.prevProduct();
                 }
             }
-        }">
+        },
+        handleTouchStart(e) {
+            this.touchStartY = e.touches[0].clientY;
+        },
+        handleTouchEnd(e) {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = this.touchStartY - touchEndY;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    this.nextProduct();
+                } else {
+                    this.prevProduct();
+                }
+            }
+        },
+        goToDetail(slug) {
+            if (slug && slug !== '#') {
+                window.location.href = '/product/' + slug;
+            }
+        }
+     }"
+     @wheel.prevent="handleWheel"
+     @touchstart="handleTouchStart"
+     @touchend="handleTouchEnd"
+     @keydown.arrow-down.window="nextProduct()"
+     @keydown.arrow-up.window="prevProduct()">
+    
+    <!-- Products Container - Vertical Scroll -->
+    <div class="relative h-full w-full ease-out"
+         :class="useTransition ? 'transition-transform duration-700' : ''"
+         :style="'transform: translateY(-' + (currentIndex * 100) + '%)'">
         
-        <!-- Background Images (Carousel) -->
-        <template x-for="(product, index) in products" :key="index">
-            <div class="absolute inset-0 z-0 transition-opacity duration-1000"
-                 :class="currentSlide === index ? 'opacity-100' : 'opacity-0'">
-                <img :src="product.image" 
-                     :alt="product.title" 
-                     class="w-full h-full object-cover object-top opacity-80">
-            </div>
-        </template>
-
-        <!-- Gradient Overlay -->
-        <div class="absolute inset-0 z-10 bg-gradient-to-r from-black/90 via-black/60 to-transparent"></div>
-
-        <!-- Content -->
-        <div class="relative z-20 container mx-auto px-4 lg:px-8 mt-16">
-            <div class="max-w-xl text-left">
-                <span class="inline-block py-1 px-2 mb-4 text-xs font-bold tracking-widest uppercase bg-primary text-white transition-all duration-500"
-                      x-text="products[currentSlide]?.badge"></span>
-                <h1 class="text-5xl md:text-7xl font-display font-medium leading-tight mb-4 text-white drop-shadow-sm transition-all duration-500"
-                    x-html="products[currentSlide]?.title"></h1>
-                <p class="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed font-light max-w-md transition-all duration-500"
-                   x-text="products[currentSlide]?.description"></p>
-                
-                <!-- Pricing -->
-                <div class="flex items-baseline mb-10">
-                    <span class="text-4xl font-display font-bold text-white transition-all duration-500"
-                          x-text="products[currentSlide]?.price"></span>
-                    <span class="ml-3 text-sm text-gray-400 line-through transition-all duration-500"
-                          x-text="products[currentSlide]?.oldPrice"></span>
+        <!-- Real Products -->
+        @foreach($products as $index => $product)
+            <section class="h-screen w-full relative flex-shrink-0">
+                <!-- Background Image -->
+                <div class="absolute inset-0 cursor-pointer" 
+                     @click="goToDetail('{{ $product['slug'] }}')">
+                    <img src="{{ $product['image'] }}" 
+                         alt="{{ $product['title'] }}" 
+                         class="w-full h-full object-cover">
                 </div>
 
-                <!-- Buttons -->
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <!-- Add to Cart: Transparent to White Fill with Icons on Hover -->
-                    <button class="btn-scale-fill group bg-white border border-white py-4 px-10 font-bold uppercase tracking-wide text-black transition-all duration-300 hover:bg-white hover:text-white flex items-center gap-2">
-                        <span class="material-icons-outlined text-xl opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">add</span>
-                        <span>Add to Cart</span>
-                        <span class="material-icons-outlined text-xl opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">shopping_cart</span>
-                    </button>
+                <!-- Gradient Overlays -->
+                <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+
+                <!-- Product Info - Left Bottom -->
+                <div class="absolute left-0 bottom-0 z-20 p-8 lg:p-16 max-w-xl pointer-events-none">
+                    <!-- Badge -->
+                    <div class="mb-4">
+                        <span class="inline-block text-xs font-bold tracking-[0.2em] uppercase text-white/80">
+                            {{ $product['badge'] ?? 'New Collection' }}
+                        </span>
+                    </div>
                     
-                    <!-- View Details: Expanding Pill Effect -->
-                    <button class="btn-expand-pill border border-white py-4 px-10 font-bold uppercase tracking-wide text-white transition-all duration-300 flex items-center gap-2 hover:text-black" @click="goToDetail()">
-                        <span>View Details</span>
-                        <span class="material-icons-outlined arrow-icon text-xl">arrow_forward</span>
-                    </button>
+                    <!-- Product Name -->
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-4 drop-shadow-lg">
+                        {{ $product['title'] }}
+                    </h1>
+                    
+                    <!-- Description -->
+                    <p class="text-base md:text-lg text-white/90 mb-6 leading-relaxed drop-shadow-md max-w-md">
+                        {{ $product['description'] }}
+                    </p>
+                    
+                    <!-- Price -->
+                    <div class="mb-8">
+                        <span class="text-3xl md:text-4xl font-display font-bold text-white drop-shadow-lg">
+                            {{ $product['price'] }}
+                        </span>
+                        @if(!empty($product['oldPrice']))
+                            <span class="ml-3 text-lg text-white/60 line-through">
+                                {{ $product['oldPrice'] }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
-            </div>
-        </div>
+            </section>
+        @endforeach
 
-        <!-- Bounce Arrow -->
-        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce hidden md:block">
-            <span class="material-icons-outlined text-4xl text-white opacity-50">keyboard_arrow_down</span>
-        </div>
+        <!-- CLONE First Product (for seamless loop) -->
+        @if(count($products) > 0)
+            @php $product = $products[0]; @endphp
+            <section class="h-screen w-full relative flex-shrink-0" aria-hidden="true">
+                <div class="absolute inset-0 cursor-pointer" 
+                     @click="goToDetail('{{ $product['slug'] }}')">
+                    <img src="{{ $product['image'] }}" 
+                         alt="{{ $product['title'] }}" 
+                         class="w-full h-full object-cover">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+                <div class="absolute left-0 bottom-0 z-20 p-8 lg:p-16 max-w-xl pointer-events-none">
+                    <div class="mb-4">
+                        <span class="inline-block text-xs font-bold tracking-[0.2em] uppercase text-white/80">
+                            {{ $product['badge'] ?? 'New Collection' }}
+                        </span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-4 drop-shadow-lg">
+                        {{ $product['title'] }}
+                    </h1>
+                    <p class="text-base md:text-lg text-white/90 mb-6 leading-relaxed drop-shadow-md max-w-md">
+                        {{ $product['description'] }}
+                    </p>
+                    <div class="mb-8">
+                        <span class="text-3xl md:text-4xl font-display font-bold text-white drop-shadow-lg">
+                            {{ $product['price'] }}
+                        </span>
+                        @if(!empty($product['oldPrice']))
+                            <span class="ml-3 text-lg text-white/60 line-through">
+                                {{ $product['oldPrice'] }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </section>
+        @endif
+    </div>
 
-        <!-- Side Navigation (Arrows + Dots) -->
-        <div class="absolute right-8 top-1/2 transform -translate-y-1/2 z-30 hidden lg:flex flex-col items-center gap-3">
-            <!-- Up Arrow -->
-            <button class="p-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full transition-all duration-300 hover:scale-110"
-                    @click="currentSlide = (currentSlide - 1 + products.length) % products.length">
-                <span class="material-icons-outlined text-xl text-white">keyboard_arrow_up</span>
-            </button>
-            
-            <!-- Dots -->
-            <div class="flex flex-col gap-3 py-2">
-                <template x-for="(product, index) in products" :key="index">
-                    <button class="w-3 h-3 rounded-full cursor-pointer transition-all duration-300 border-2"
-                            :class="currentSlide === index ? 'bg-white border-white scale-125' : 'bg-transparent border-white/50 hover:border-white hover:bg-white/30'"
-                            @click="currentSlide = index"></button>
-                </template>
-            </div>
-            
-            <!-- Down Arrow -->
-            <button class="p-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full transition-all duration-300 hover:scale-110"
-                    @click="currentSlide = (currentSlide + 1) % products.length">
-                <span class="material-icons-outlined text-xl text-white">keyboard_arrow_down</span>
-            </button>
+    <!-- Navigation Dots - Right Side -->
+    <div class="fixed right-6 lg:right-12 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-3">
+        @foreach($products as $index => $product)
+            <button class="w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer"
+                    :class="(currentIndex === {{ $index }} || (currentIndex === products.length && {{ $index }} === 0))
+                        ? 'bg-white scale-150' 
+                        : 'bg-white/40 hover:bg-white/70'"
+                    @click="goToProduct({{ $index }})"></button>
+        @endforeach
+    </div>
+
+    <!-- Scroll Indicator - Only show on first product (real or clone reset) -->
+    <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 animate-bounce"
+         x-show="currentIndex === 0"
+         x-transition>
+        <div class="flex flex-col items-center text-white/60">
+            <span class="text-xs uppercase tracking-widest mb-2">Scroll</span>
+            <span class="material-icons-outlined text-3xl">keyboard_arrow_down</span>
         </div>
-    </section>
+    </div>
+
+    <!-- Product Counter -->
+    <div class="fixed bottom-8 right-6 lg:right-12 z-40 text-white/60 font-display text-sm">
+        <span class="text-white font-bold text-lg" x-text="(currentIndex === products.length ? 1 : currentIndex + 1)"></span>
+        <span class="mx-1">/</span>
+        <span x-text="products.length"></span>
+    </div>
 </div>
-
