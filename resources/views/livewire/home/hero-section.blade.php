@@ -55,14 +55,14 @@
                 <!-- Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4">
                     <!-- Add to Cart: Transparent to White Fill with Icons on Hover -->
-                    <button class="btn-scale-fill group bg-transparent border border-white py-4 px-10 font-bold uppercase tracking-wide text-white transition-all duration-300 hover:bg-white hover:text-black flex items-center gap-2">
+                    <button class="btn-scale-fill group bg-white border border-white py-4 px-10 font-bold uppercase tracking-wide text-black transition-all duration-300 hover:bg-white hover:text-white flex items-center gap-2">
                         <span class="material-icons-outlined text-xl opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">add</span>
                         <span>Add to Cart</span>
                         <span class="material-icons-outlined text-xl opacity-0 translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">shopping_cart</span>
                     </button>
                     
                     <!-- View Details: Expanding Pill Effect -->
-                    <button class="btn-expand-pill border border-white py-4 px-10 font-bold uppercase tracking-wide text-white transition-colors duration-300 flex items-center gap-2 hover:text-black" @click="goToDetail()">
+                    <button class="btn-expand-pill border border-white py-4 px-10 font-bold uppercase tracking-wide text-white transition-all duration-300 flex items-center gap-2 hover:text-black" @click="goToDetail()">
                         <span>View Details</span>
                         <span class="material-icons-outlined arrow-icon text-xl">arrow_forward</span>
                     </button>
