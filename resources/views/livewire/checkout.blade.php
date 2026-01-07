@@ -46,7 +46,7 @@
                 </div>
             </div>
 
-            <button wire:click="processPayment" wire:loading.attr="disabled" class="w-full bg-primary text-white py-4 font-bold uppercase tracking-wide hover:bg-red-600 transition-colors disabled:opacity-50">
+            <button wire:click="processPayment" wire:loading.attr="disabled" class="w-full bg-white text-gray-900 py-4 font-bold uppercase tracking-wide hover:bg-gray-100 transition-colors disabled:opacity-50">
                 <span wire:loading.remove>Place Order & Pay</span>
                 <span wire:loading>Processing...</span>
             </button>

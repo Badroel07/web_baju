@@ -6,14 +6,16 @@ export default {
     "./resources/**/*.js",
     "./resources/**/*.vue",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        primary: "#000000ff",
-        "background-light": "#F5F5F5",
-        "background-dark": "#0f0f0f",
+        primary: "#000000",
+        "background-light": "#F3F4F6",
+        "background-dark": "#121212",
         "surface-light": "#FFFFFF",
-        "surface-dark": "#1a1a1a",
+        "surface-dark": "#1E1E1E",
+        "accent-dark": "#2D2D2D",
         "text-light": "#1f1f1f",
         "text-dark": "#f5f5f5",
         "gray-light": "#757575",
@@ -29,7 +31,7 @@ export default {
     },
   },
   plugins: [
-      require('@tailwindcss/typography'),
-      require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
   ],
 }

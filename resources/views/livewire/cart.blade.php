@@ -36,7 +36,7 @@
                     <span>Total</span>
                     <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
                 </div>
-                <a href="{{ route('checkout') }}" class="block w-full bg-primary text-white text-center py-3 font-bold uppercase tracking-wider hover:bg-red-600 transition-colors">
+                <a href="{{ route('checkout') }}" class="block w-full bg-white text-gray-900 text-center py-3 font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors">
                     Checkout
                 </a>
             </div>

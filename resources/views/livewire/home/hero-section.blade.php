@@ -1,225 +1,42 @@
-<div class="h-screen w-full overflow-hidden" 
-     x-data="{
-        currentIndex: 0,
-        products: window.heroProducts || [],
-        isAnimating: false,
-        touchStartY: 0,
-        useTransition: true,
-        init() {
-            window.heroProducts = @js($products);
-            this.products = window.heroProducts;
-            
-
-        },
-        goToProduct(index) {
-            // Allow index to go to products.length (the clone)
-            if (this.isAnimating || index < 0 || index > this.products.length) return;
-            
-            this.isAnimating = true;
-            this.currentIndex = index;
-            
-            // If we moved to the clone (visual match of index 0)
-            if (index === this.products.length) {
-                setTimeout(() => {
-                    this.useTransition = false; // Disable transition for instant jump
-                    this.currentIndex = 0;      // Jump to real first item
-                    
-                    // Re-enable transition after small delay
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            this.useTransition = true;
-                            this.isAnimating = false;
-                        });
-                    });
-                }, 700); // Wait for slide animation to finish
-            } else {
-                setTimeout(() => this.isAnimating = false, 700);
-            }
-        },
-        nextProduct() {
-            this.goToProduct(this.currentIndex + 1);
-        },
-        prevProduct() {
-            if (this.currentIndex > 0) {
-                this.goToProduct(this.currentIndex - 1);
-            }
-        },
-        handleWheel(e) {
-            // e.preventDefault(); // Optional: remove if blocking normal page scroll is annoying
-            // Check if scrolling down
-            if (e.deltaY > 0) {
-                if (!this.isAnimating) {
-                    this.nextProduct();
-                }
-            } else {
-                if (!this.isAnimating) {
-                    this.prevProduct();
-                }
-            }
-        },
-        handleTouchStart(e) {
-            this.touchStartY = e.touches[0].clientY;
-        },
-        handleTouchEnd(e) {
-            const touchEndY = e.changedTouches[0].clientY;
-            const diff = this.touchStartY - touchEndY;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                    this.nextProduct();
-                } else {
-                    this.prevProduct();
-                }
-            }
-        },
-        shouldShowDot(index) {
-            // Logic for progressive dots: show 5 dots total (current +/- 2)
-            // Handle wrap-around logic for the 'infinite' feel
-            let realCurrent = this.currentIndex === this.products.length ? 0 : this.currentIndex;
-            let diff = index - realCurrent;
-            
-            // Adjust diff for wrap-around (shortest path)
-            if (diff > this.products.length / 2) diff -= this.products.length;
-            if (diff < -this.products.length / 2) diff += this.products.length;
-            
-            return Math.abs(diff) <= 2;
-        },
-        goToDetail(slug) {
-            if (slug && slug !== '#') {
-                window.location.href = '/product/' + slug;
-            }
-        }
-     }"
-     @wheel.prevent="handleWheel"
-     @touchstart="handleTouchStart"
-     @touchend="handleTouchEnd"
-     @keydown.arrow-down.window="nextProduct()"
-     @keydown.arrow-up.window="prevProduct()">
-    
-    <!-- Products Container - Vertical Scroll -->
-    <div class="relative h-full w-full ease-out"
-         :class="useTransition ? 'transition-transform duration-700' : ''"
-         :style="'transform: translateY(-' + (currentIndex * 100) + '%)'">
-        
-        <!-- Real Products -->
-        @foreach($products as $index => $product)
-            <section class="h-screen w-full relative flex-shrink-0">
-                <!-- Background Image -->
-                <div class="absolute inset-0 cursor-pointer" 
-                     @click="goToDetail('{{ $product['slug'] }}')">
-                    <img src="{{ $product['image'] }}" 
-                         alt="{{ $product['title'] }}" 
-                         class="w-full h-full object-cover">
-                </div>
-
-                <!-- Gradient Overlays -->
-                <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
-
-                <!-- Product Info - Left Bottom -->
-                <div class="absolute left-0 bottom-0 z-20 p-8 lg:p-16 max-w-xl pointer-events-none">
-                    <!-- Badge -->
-                    <div class="mb-4">
-                        <span class="inline-block text-xs font-bold tracking-[0.2em] uppercase text-white/80">
-                            {{ $product['badge'] ?? 'New Collection' }}
-                        </span>
-                    </div>
-                    
-                    <!-- Product Name -->
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-4 drop-shadow-lg">
-                        {{ $product['title'] }}
-                    </h1>
-                    
-                    <!-- Description -->
-                    <p class="text-base md:text-lg text-white/90 mb-6 leading-relaxed drop-shadow-md max-w-md">
-                        {{ $product['description'] }}
-                    </p>
-                    
-                    <!-- Price -->
-                    <div class="mb-8">
-                        <span class="text-3xl md:text-4xl font-display font-bold text-white drop-shadow-lg">
-                            {{ $product['price'] }}
-                        </span>
-                        @if(!empty($product['oldPrice']))
-                            <span class="ml-3 text-lg text-white/60 line-through">
-                                {{ $product['oldPrice'] }}
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            </section>
-        @endforeach
-
-        <!-- CLONE First Product (for seamless loop) -->
-        @if(count($products) > 0)
-            @php $product = $products[0]; @endphp
-            <section class="h-screen w-full relative flex-shrink-0" aria-hidden="true">
-                <div class="absolute inset-0 cursor-pointer" 
-                     @click="goToDetail('{{ $product['slug'] }}')">
-                    <img src="{{ $product['image'] }}" 
-                         alt="{{ $product['title'] }}" 
-                         class="w-full h-full object-cover">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
-                <div class="absolute left-0 bottom-0 z-20 p-8 lg:p-16 max-w-xl pointer-events-none">
-                    <div class="mb-4">
-                        <span class="inline-block text-xs font-bold tracking-[0.2em] uppercase text-white/80">
-                            {{ $product['badge'] ?? 'New Collection' }}
-                        </span>
-                    </div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-4 drop-shadow-lg">
-                        {{ $product['title'] }}
-                    </h1>
-                    <p class="text-base md:text-lg text-white/90 mb-6 leading-relaxed drop-shadow-md max-w-md">
-                        {{ $product['description'] }}
-                    </p>
-                    <div class="mb-8">
-                        <span class="text-3xl md:text-4xl font-display font-bold text-white drop-shadow-lg">
-                            {{ $product['price'] }}
-                        </span>
-                        @if(!empty($product['oldPrice']))
-                            <span class="ml-3 text-lg text-white/60 line-through">
-                                {{ $product['oldPrice'] }}
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            </section>
-        @endif
-    </div>
-
-    <!-- Navigation Dots - Right Side -->
-    <div class="fixed right-6 lg:right-12 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-3">
-        <template x-for="(product, index) in products" :key="index">
-            <button class="w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer"
-                    x-show="shouldShowDot(index)"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 scale-50"
-                    x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-300"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-50"
-                    :class="(currentIndex === index || (currentIndex === products.length && index === 0))
-                        ? 'bg-white scale-150' 
-                        : 'bg-white/40 hover:bg-white/70'"
-                    @click="goToProduct(index)"></button>
-        </template>
-    </div>
-
-    <!-- Scroll Indicator - Only show on first product (real or clone reset) -->
-    <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40 animate-bounce"
-         x-show="currentIndex === 0"
-         x-transition>
-        <div class="flex flex-col items-center text-white/60">
-            <span class="text-xs uppercase tracking-widest mb-2">Scroll</span>
-            <span class="material-icons-outlined text-3xl">keyboard_arrow_down</span>
+<div class="pt-16">
+    <!-- Hero Section -->
+    <section class="relative bg-gray-900 overflow-hidden">
+        <!-- Background Image -->
+        <div class="absolute inset-0">
+            @if(count($products) > 0 && !empty($products[0]['image']))
+                <img src="{{ $products[0]['image'] }}" 
+                     alt="Hero background" 
+                     class="w-full h-full object-cover opacity-60 dark:opacity-40">
+            @else
+                <div class="w-full h-full bg-gray-800"></div>
+            @endif
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
         </div>
-    </div>
 
-    <!-- Product Counter
-    <div class="fixed bottom-8 right-6 lg:right-12 z-40 text-white/60 font-display text-sm">
-        <span class="text-white font-bold text-lg" x-text="(currentIndex === products.length ? 1 : currentIndex + 1)"></span>
-        <span class="mx-1">/</span>
-        <span x-text="products.length"></span>
-    </div> -->
+        <!-- Content -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 lg:py-48 flex flex-col justify-center h-full">
+            <div class="max-w-xl">
+                <span class="text-white font-bold tracking-wider uppercase text-sm mb-2 block">Koleksi Terbaru 2026</span>
+                <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl mb-6">
+                    Mendefinisikan Ulang<br>Kenyamanan Modern
+                </h1>
+                <p class="mt-4 text-xl text-gray-300 max-w-lg mb-8">
+                    Temukan koleksi LifeWear terbaru kami. Pakaian sehari-hari yang simpel, berkualitas tinggi, dengan sentuhan keindahan praktis.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#products" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium text-black bg-white hover:bg-gray-200 md:py-4 md:text-lg transition-colors">
+                        Lihat Koleksi
+                    </a>
+                    <a href="#" class="inline-flex items-center justify-center px-8 py-3 border border-white text-base font-medium text-white hover:bg-white/10 md:py-4 md:text-lg transition-colors">
+                        Pelajari Lebih Lanjut
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promo Banner -->
+    <div class="bg-black text-white text-center py-3 px-4 text-sm font-medium">
+        <p>Gratis Ongkir untuk semua pesanan di atas Rp500.000. <a href="#" class="underline decoration-1 underline-offset-2 hover:opacity-80">Pelajari Lebih Lanjut</a></p>
+    </div>
 </div>
