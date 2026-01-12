@@ -34,7 +34,7 @@
                             <span class="block font-bold">{{ $item['name'] }}</span>
                             <span class="text-xs text-gray-500">Size: {{ $item['size'] }} x {{ $item['quantity'] }}</span>
                         </div>
-                        <span>${{ number_format($item['price'] * $item['quantity'], 2) }}</span>
+                        <span>Rp{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
                     </div>
                 @endforeach
             </div>
@@ -42,11 +42,11 @@
             <div class="border-t border-gray-700 pt-4 mb-8">
                 <div class="flex justify-between text-white font-bold text-xl">
                     <span>Total</span>
-                    <span>${{ number_format($total, 2) }}</span>
+                    <span>Rp{{ number_format($total, 0, ',', '.') }}</span>
                 </div>
             </div>
 
-            <button wire:click="processPayment" wire:loading.attr="disabled" class="w-full bg-primary text-white py-4 font-bold uppercase tracking-wide hover:bg-red-600 transition-colors disabled:opacity-50">
+            <button wire:click="processPayment" wire:loading.attr="disabled" class="w-full bg-white text-gray-900 py-4 font-bold uppercase tracking-wide hover:bg-gray-100 transition-colors disabled:opacity-50">
                 <span wire:loading.remove>Place Order & Pay</span>
                 <span wire:loading>Processing...</span>
             </button>

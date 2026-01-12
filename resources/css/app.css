@@ -1,11 +1,70 @@
 @import "tailwindcss";
 
-/* Custom Styles from Reference */
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Custom Theme Colors */
+@theme {
+    --color-primary: #000000;
+    --color-background-light: #F3F4F6;
+    --color-background-dark: #121212;
+    --color-surface-light: #FFFFFF;
+    --color-surface-dark: #1E1E1E;
+    --color-accent-dark: #2D2D2D;
+    --color-text-light: #1f1f1f;
+    --color-text-dark: #f5f5f5;
+    --color-gray-light: #757575;
+    --color-gray-dark: #a3a3a3;
+
+    --font-sans: 'Inter', sans-serif;
+    --font-display: 'Oswald', sans-serif;
+}
+
+/* Override browser autofill background colors - Dark Mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active,
+.dark input:-webkit-autofill::first-line {
+    -webkit-box-shadow: 0 0 0 1000px #2D2D2D inset !important;
+    -webkit-text-fill-color: #f5f5f5 !important;
+    color: #f5f5f5 !important;
+    caret-color: #f5f5f5 !important;
+    background-color: #2D2D2D !important;
+    transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s !important;
+    font-size: inherit !important;
+}
+
+/* Light mode autofill override */
+:root:not(.dark) input:-webkit-autofill,
+:root:not(.dark) input:-webkit-autofill:hover,
+:root:not(.dark) input:-webkit-autofill:focus,
+:root:not(.dark) input:-webkit-autofill:active,
+:root:not(.dark) input:-webkit-autofill::first-line,
+html:not(.dark) input:-webkit-autofill,
+html:not(.dark) input:-webkit-autofill:hover,
+html:not(.dark) input:-webkit-autofill:focus,
+html:not(.dark) input:-webkit-autofill:active,
+html:not(.dark) input:-webkit-autofill::first-line {
+    -webkit-box-shadow: 0 0 0 1000px #f3f4f6 inset !important;
+    -webkit-text-fill-color: #1f1f1f !important;
+    color: #1f1f1f !important;
+    caret-color: #1f1f1f !important;
+    background-color: #f3f4f6 !important;
+    transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s !important;
+    font-size: inherit !important;
+}
+
+/* Alpine.js x-cloak - hide until Alpine initializes */
+[x-cloak] {
+    display: none !important;
+}
+
 @layer components {
     .logo-box {
         width: 40px;
         height: 40px;
-        background-color: #ED1D24;
+        background-color: #000000;
         color: white;
         display: flex;
         align-items: center;
@@ -15,6 +74,14 @@
         line-height: 1;
         font-size: 1.2rem;
         letter-spacing: -1px;
+    }
+
+    .hover-lift {
+        transition: transform 0.2s ease-out;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-2px);
     }
 
     .nav-link {
@@ -57,7 +124,7 @@
         transition: all 400ms ease;
     }
 
-    .btn-expand-pill > * {
+    .btn-expand-pill>* {
         position: relative;
         z-index: 1;
     }
@@ -99,7 +166,7 @@
         transition: transform 0.4s ease;
     }
 
-    .btn-scale-fill > * {
+    .btn-scale-fill>* {
         position: relative;
         z-index: 1;
     }

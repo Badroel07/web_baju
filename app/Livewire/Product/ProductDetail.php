@@ -22,12 +22,17 @@ class ProductDetail extends Component
         }
     }
 
+    public function buyNow()
+    {
+        $this->addToCart();
+        return redirect()->route('checkout');
+    }
+
     public function addToCart()
     {
         if (empty($this->product->sizes) || empty($this->selectedSize)) {
-            // If product has sizes, size must be selected
              if (!empty($this->product->sizes) && !$this->selectedSize) {
-                // Flash error or handle UI state (skipping for now, simple implementation)
+                // TODO: Add error notification
                 return;
              }
         }
@@ -55,6 +60,7 @@ class ProductDetail extends Component
 
     public function render()
     {
-        return view('livewire.product.product-detail');
+        return view('livewire.product.product-detail')
+            ->layout('components.layouts.app');
     }
 }
